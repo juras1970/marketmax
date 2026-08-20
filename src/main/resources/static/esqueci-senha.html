@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Esqueci minha senha — MarketMax</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: {
+        'ml-yellow': '#FFE600', 'ml-blue': '#3483FA', 'ml-green': '#00A650', 'ml-red': '#E63535',
+      } } }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <div id="site-header"></div>
+
+  <main class="flex-1 w-full max-w-[420px] mx-auto px-4 py-10">
+    <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
+      <h1 class="text-2xl font-semibold text-[--ml-text] text-center mb-1">Esqueci minha senha</h1>
+      <p class="text-sm text-[--ml-text-light] text-center mb-6">
+        Informe seu e-mail cadastrado e enviaremos um link para você redefinir sua senha.
+      </p>
+
+      <form id="forgot-form" class="space-y-4">
+        <div>
+          <label for="email" class="text-xs font-medium text-[--ml-text-light]">E-mail</label>
+          <input id="email" type="email" required autocomplete="email"
+            class="w-full mt-1 px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[--ml-blue] focus:border-transparent" />
+        </div>
+
+        <p id="forgot-error" class="hidden text-sm text-[--ml-red] bg-red-50 border border-red-100 rounded-md px-3 py-2"></p>
+        <p id="forgot-success" class="hidden text-sm text-[--ml-green] bg-green-50 border border-green-100 rounded-md px-3 py-2"></p>
+
+        <button id="forgot-submit" type="submit"
+          class="w-full bg-[--ml-blue] hover:bg-blue-600 text-white font-semibold py-2.5 rounded-md transition">
+          Enviar link de redefinição
+        </button>
+      </form>
+
+      <div class="mt-4 pt-4 border-t border-gray-100 text-center text-sm text-[--ml-text-light]">
+        Lembrou sua senha?
+        <a href="/login.html" class="text-[--ml-blue] font-medium hover:underline">Voltar para o login</a>
+      </div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/layout.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('forgot-form');
+      const errorEl = document.getElementById('forgot-error');
+      const successEl = document.getElementById('forgot-success');
+      const submitBtn = document.getElementById('forgot-submit');
+      const emailInput = document.getElementById('email');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.classList.add('hidden');
+        successEl.classList.add('hidden');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Enviando...';
+
+        const email = emailInput.value.trim();
+
+        try {
+          const result = await api.auth.forgotPassword(email);
+          successEl.textContent = result.message || 'Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha.';
+          successEl.classList.remove('hidden');
+          form.reset();
+          submitBtn.textContent = 'Enviar link de redefinição';
+          submitBtn.disabled = false;
+        } catch (err) {
+          errorEl.textContent = err.message || 'Não foi possível enviar o e-mail. Tente novamente.';
+          errorEl.classList.remove('hidden');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Enviar link de redefinição';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

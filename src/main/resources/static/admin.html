@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Administrativo — MarketMax</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: {
+        'ml-yellow': '#FFE600', 'ml-blue': '#3483FA', 'ml-green': '#00A650', 'ml-red': '#E63535',
+      } } }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col bg-gray-50/60">
+
+  <!-- Header Dinâmico (Lê o layout.js com Menu Hambúrguer) -->
+  <div id="site-header"></div>
+
+  <main class="flex-1 w-full max-w-[1300px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+
+    <!-- Mensagem de acesso negado -->
+    <div id="admin-denied" class="hidden text-center py-24">
+      <p class="text-lg text-[--ml-text]">Acesso restrito ao administrador.</p>
+      <a href="/login.html?redirect=%2Fadmin.html" class="text-[--ml-blue] hover:underline font-medium">Entrar com uma conta de administrador</a>
+    </div>
+
+    <!-- Conteúdo do Painel -->
+    <div id="admin-content" class="hidden">
+      
+      <!-- Cabeçalho do Painel -->
+      <div class="mb-4 sm:mb-6">
+        <h1 class="text-xl sm:text-2xl font-bold text-[--ml-text]">Painel Administrativo</h1>
+        <p class="text-xs sm:text-sm text-[--ml-text-light]">Gerencie categorias, produtos, usuários e acompanhe as vendas do MarketMax.</p>
+      </div>
+
+      <!-- ABAS COM ROLAGEM SUAVE NO MOBILE -->
+      <div class="flex items-center gap-1 border-b border-gray-200 mb-6 overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
+        <button data-tab="dashboard" class="admin-tab-btn whitespace-nowrap px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-[--ml-blue] text-[--ml-blue]">📊 Vendas</button>
+        <button data-tab="products" class="admin-tab-btn whitespace-nowrap px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-[--ml-text-light] hover:text-[--ml-text]">📦 Produtos</button>
+        <button data-tab="categories" class="admin-tab-btn whitespace-nowrap px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-[--ml-text-light] hover:text-[--ml-text]">🏷️ Categorias</button>
+        <button data-tab="users" class="admin-tab-btn whitespace-nowrap px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-[--ml-text-light] hover:text-[--ml-text]">👤 Usuários</button>
+        <button data-tab="orders" class="admin-tab-btn whitespace-nowrap px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-[--ml-text-light] hover:text-[--ml-text]">🧾 Pedidos</button>
+      </div>
+
+      <!-- DASHBOARD / GRÁFICOS E ESTATÍSTICAS -->
+      <section id="tab-dashboard" class="admin-tab-panel space-y-4 sm:space-y-6">
+        
+        <!-- CARDS DE ESTATÍSTICAS (2 COLS NO MOBILE, 4 NO DESKTOP) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div class="bg-white rounded-xl p-3.5 sm:p-4 border border-gray-100 shadow-sm">
+            <p class="text-[11px] sm:text-xs font-medium text-[--ml-text-light]">Receita total</p>
+            <p id="stat-revenue" class="text-base sm:text-xl font-bold text-[--ml-text] mt-1">—</p>
+          </div>
+          <div class="bg-white rounded-xl p-3.5 sm:p-4 border border-gray-100 shadow-sm">
+            <p class="text-[11px] sm:text-xs font-medium text-[--ml-text-light]">Pedidos</p>
+            <p id="stat-orders" class="text-base sm:text-xl font-bold text-[--ml-text] mt-1">—</p>
+          </div>
+          <div class="bg-white rounded-xl p-3.5 sm:p-4 border border-gray-100 shadow-sm">
+            <p class="text-[11px] sm:text-xs font-medium text-[--ml-text-light]">Usuários</p>
+            <p id="stat-users" class="text-base sm:text-xl font-bold text-[--ml-text] mt-1">—</p>
+          </div>
+          <div class="bg-white rounded-xl p-3.5 sm:p-4 border border-gray-100 shadow-sm">
+            <p class="text-[11px] sm:text-xs font-medium text-[--ml-text-light]">Produtos</p>
+            <p id="stat-products" class="text-base sm:text-xl font-bold text-[--ml-text] mt-1">—</p>
+          </div>
+        </div>
+
+        <!-- GRÁFICOS RESPONSIVOS -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          
+          <div class="bg-white rounded-xl p-4 sm:p-5 border border-gray-100 shadow-sm flex flex-col">
+            <h3 class="text-xs sm:text-sm font-bold text-[--ml-text] mb-3">Vendas por dia</h3>
+            <div class="relative w-full h-56 sm:h-64">
+              <canvas id="chart-sales-day"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 sm:p-5 border border-gray-100 shadow-sm flex flex-col">
+            <h3 class="text-xs sm:text-sm font-bold text-[--ml-text] mb-3">Pedidos por status</h3>
+            <div class="relative w-full h-56 sm:h-64">
+              <canvas id="chart-status"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 sm:p-5 border border-gray-100 shadow-sm flex flex-col">
+            <h3 class="text-xs sm:text-sm font-bold text-[--ml-text] mb-3">Produtos mais vendidos</h3>
+            <div class="relative w-full h-60 sm:h-72">
+              <canvas id="chart-top-products"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 sm:p-5 border border-gray-100 shadow-sm flex flex-col">
+            <h3 class="text-xs sm:text-sm font-bold text-[--ml-text] mb-3">Usuários que mais compraram</h3>
+            <div class="relative w-full h-60 sm:h-72">
+              <canvas id="chart-top-users"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- PRODUTOS -->
+      <section id="tab-products" class="admin-tab-panel hidden">
+        <div class="flex justify-end mb-3">
+          <button id="new-product-btn" class="bg-[--ml-blue] hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg shadow-sm transition">+ Novo produto</button>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-gray-50/80 border-b border-gray-100 text-[--ml-text-light] font-semibold">
+              <tr>
+                <th class="px-4 py-3 whitespace-nowrap">Produto</th>
+                <th class="px-4 py-3 whitespace-nowrap">Categoria</th>
+                <th class="px-4 py-3 whitespace-nowrap">Preço</th>
+                <th class="px-4 py-3 whitespace-nowrap">Desconto</th>
+                <th class="px-4 py-3 whitespace-nowrap">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="products-table-body" class="divide-y divide-gray-100"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CATEGORIAS -->
+      <section id="tab-categories" class="admin-tab-panel hidden">
+        <div class="flex justify-end mb-3">
+          <button id="new-category-btn" class="bg-[--ml-blue] hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg shadow-sm transition">+ Nova categoria</button>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-gray-50/80 border-b border-gray-100 text-[--ml-text-light] font-semibold">
+              <tr>
+                <th class="px-4 py-3 whitespace-nowrap">Ícone</th>
+                <th class="px-4 py-3 whitespace-nowrap">ID</th>
+                <th class="px-4 py-3 whitespace-nowrap">Nome</th>
+                <th class="px-4 py-3 whitespace-nowrap">Produtos</th>
+                <th class="px-4 py-3 whitespace-nowrap">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="categories-table-body" class="divide-y divide-gray-100"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- USUÁRIOS -->
+      <section id="tab-users" class="admin-tab-panel hidden">
+        <div class="flex justify-end mb-3">
+          <button id="new-user-btn" class="bg-[--ml-blue] hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg shadow-sm transition">+ Novo usuário</button>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-gray-50/80 border-b border-gray-100 text-[--ml-text-light] font-semibold">
+              <tr>
+                <th class="px-4 py-3 whitespace-nowrap">Nome</th>
+                <th class="px-4 py-3 whitespace-nowrap">E-mail</th>
+                <th class="px-4 py-3 whitespace-nowrap">Papel</th>
+                <th class="px-4 py-3 whitespace-nowrap">Status</th>
+                <th class="px-4 py-3 whitespace-nowrap">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body" class="divide-y divide-gray-100"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PEDIDOS -->
+      <section id="tab-orders" class="admin-tab-panel hidden">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-gray-50/80 border-b border-gray-100 text-[--ml-text-light] font-semibold">
+              <tr>
+                <th class="px-4 py-3 whitespace-nowrap">Pedido</th>
+                <th class="px-4 py-3 whitespace-nowrap">Data</th>
+                <th class="px-4 py-3 whitespace-nowrap">Total</th>
+                <th class="px-4 py-3 whitespace-nowrap">Status</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body" class="divide-y divide-gray-100"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- MODAL PARA FORMULÁRIOS CRUD -->
+  <div id="admin-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100">
+      <div class="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-gray-100">
+        <h3 id="modal-title" class="font-bold text-sm sm:text-base text-[--ml-text]">Título</h3>
+        <button id="modal-close-btn" class="text-gray-400 hover:text-gray-700 text-2xl leading-none">&times;</button>
+      </div>
+      <div id="modal-body" class="p-4 sm:p-5"></div>
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
