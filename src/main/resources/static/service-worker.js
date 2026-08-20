@@ -1,4 +1,4 @@
-const CACHE_NAME = "marketmax-v2";
+const CACHE_NAME = "marketmax";
 
 const STATIC_ASSETS = [
     "/index.html",
