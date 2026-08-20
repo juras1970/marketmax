@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Produto — MarketMax</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: {
+        'ml-yellow': '#FFE600', 'ml-blue': '#3483FA', 'ml-green': '#00A650', 'ml-red': '#E63535',
+      } } }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <div id="site-header"></div>
+
+  <main class="flex-1 w-full max-w-[1200px] mx-auto px-4 py-6">
+
+    <nav id="breadcrumb" class="text-xs text-[--ml-text-light] mb-4"></nav>
+
+    <div id="loading-state" class="grid md:grid-cols-[1fr_1fr_300px] gap-6">
+      <div class="skeleton h-96 rounded-lg"></div>
+      <div class="space-y-3">
+        <div class="skeleton h-4 w-1/3 rounded"></div>
+        <div class="skeleton h-6 w-full rounded"></div>
+        <div class="skeleton h-10 w-1/2 rounded"></div>
+      </div>
+      <div class="skeleton h-64 rounded-lg"></div>
+    </div>
+
+    <div id="product-content" class="hidden bg-white rounded-lg p-4 md:p-6 fade-in">
+      <div class="grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_300px] gap-8">
+
+        <!-- Galeria -->
+        <div>
+          <div class="aspect-square bg-white flex items-center justify-center border border-gray-100 rounded-lg overflow-hidden">
+            <img id="main-image" src="" alt="" class="w-full h-full object-contain" onerror="this.src=IMG_PLACEHOLDER" />
+          </div>
+          <div id="thumbnails" class="flex gap-2 mt-3 overflow-x-auto scrollbar-hide"></div>
+        </div>
+
+        <!-- Informações -->
+        <div class="min-w-0">
+          <p id="p-sales" class="text-xs text-[--ml-text-light]"></p>
+          <div class="flex items-start justify-between gap-3 mt-1">
+            <h1 id="p-title" class="text-xl md:text-2xl text-[--ml-text] leading-snug"></h1>
+            <button id="favorite-btn"
+              class="shrink-0 w-10 h-10 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:scale-110 transition"
+              aria-label="Favoritar produto">
+              <svg id="favorite-icon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+            </button>
+          </div>
+          <div id="p-rating" class="flex items-center gap-1.5 mt-2 text-sm"></div>
+
+          <div class="mt-5 pb-5 border-b border-gray-100">
+            <p id="p-original-price" class="text-sm text-[--ml-text-light] line-through"></p>
+            <div class="flex items-center gap-3">
+              <span id="p-price" class="text-3xl md:text-4xl font-light text-[--ml-text]"></span>
+              <span id="p-discount" class="text-lg text-[--ml-green] font-medium"></span>
+            </div>
+            <p id="p-installments" class="text-sm text-[--ml-green] mt-1"></p>
+            <p id="p-free-shipping" class="text-sm text-[--ml-green] font-semibold mt-2 flex items-center gap-1"></p>
+          </div>
+
+          <div class="mt-5">
+            <h2 class="font-semibold text-[--ml-text] mb-2">Descrição</h2>
+            <p id="p-description" class="text-sm text-[--ml-text-light] whitespace-pre-line leading-relaxed"></p>
+          </div>
+
+          <div class="mt-6">
+            <h2 class="font-semibold text-[--ml-text] mb-2">Características principais</h2>
+            <table id="p-specs" class="w-full text-sm"></table>
+          </div>
+        </div>
+
+        <!-- Caixa de compra -->
+        <aside class="md:sticky md:top-32 h-fit">
+          <div class="border border-gray-200 rounded-lg p-4">
+            <p id="box-shipping" class="text-sm text-[--ml-green] font-semibold"></p>
+            <p class="text-sm text-[--ml-text] mt-3">Estoque disponível</p>
+
+            <div class="mt-1 mb-3">
+              <label for="qty-input" class="text-xs text-[--ml-text-light]">Quantidade:</label>
+              <div class="flex items-center gap-2 mt-1">
+                <div class="flex items-center border border-gray-300 rounded">
+                  <button id="qty-minus" class="qty-btn w-8 h-8 flex items-center justify-center text-[--ml-blue] hover:bg-gray-50">−</button>
+                  <input id="qty-input" type="number" min="1" value="1" class="w-10 text-center text-sm border-0" />
+                  <button id="qty-plus" class="qty-btn w-8 h-8 flex items-center justify-center text-[--ml-blue] hover:bg-gray-50">+</button>
+                </div>
+              </div>
+            </div>
+
+            <button id="buy-now-btn" class="w-full bg-[--ml-blue] hover:bg-blue-600 text-white font-semibold py-2.5 rounded-md transition">
+              Comprar agora
+            </button>
+            <button id="add-cart-btn" class="w-full bg-[#EAF3FF] hover:bg-blue-100 text-[--ml-blue] font-semibold py-2.5 rounded-md mt-2 transition">
+              Adicionar ao carrinho
+            </button>
+
+            <div class="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500" id="seller-initial"></div>
+              <div class="text-sm">
+                <p id="p-seller-reputation" class="font-medium text-[--ml-text]"></p>
+                <p id="p-seller-meta" class="text-xs text-[--ml-text-light]"></p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <p id="not-found" class="hidden text-center text-[--ml-text-light] py-24">
+      Produto não encontrado. <a href="/index.html" class="text-[--ml-blue] hover:underline">Voltar para a loja</a>
+    </p>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/product-card.js"></script>
+  <script src="/js/produto.js"></script>
+</body>
+</html>

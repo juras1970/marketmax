@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrinho — MarketMax</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: {
+        'ml-yellow': '#FFE600', 'ml-blue': '#3483FA', 'ml-green': '#00A650', 'ml-red': '#E63535',
+      } } }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <div id="site-header"></div>
+
+  <main class="flex-1 w-full max-w-[1200px] mx-auto px-4 py-6">
+    <h1 class="text-2xl font-semibold text-[--ml-text] mb-6">Carrinho</h1>
+
+    <div id="cart-loading" class="space-y-3">
+      <div class="skeleton h-24 rounded-lg"></div>
+      <div class="skeleton h-24 rounded-lg"></div>
+    </div>
+
+    <div id="cart-empty" class="hidden text-center py-20 bg-white rounded-lg">
+      <p class="text-lg text-[--ml-text]">Seu carrinho está vazio</p>
+      <a href="/index.html" class="inline-block mt-3 text-[--ml-blue] hover:underline font-medium">Continuar comprando</a>
+    </div>
+
+    <div id="cart-content" class="hidden grid md:grid-cols-[1fr_320px] gap-6 items-start">
+      <div class="bg-white rounded-lg divide-y divide-gray-100">
+        <div class="p-4 flex items-center justify-between">
+          <span class="text-sm text-[--ml-text-light]" id="cart-items-count"></span>
+          <button id="clear-cart-btn" class="text-sm text-[--ml-blue] hover:underline">Esvaziar carrinho</button>
+        </div>
+        <div id="cart-items"></div>
+      </div>
+
+      <aside class="bg-white rounded-lg p-4">
+        <h2 class="font-semibold text-[--ml-text] mb-3">Resumo da compra</h2>
+        <div class="flex justify-between text-sm text-[--ml-text-light] mb-1">
+          <span id="summary-items-label">Produtos</span>
+          <span id="summary-subtotal"></span>
+        </div>
+        <div class="flex justify-between text-sm text-[--ml-green] mb-3">
+          <span>Frete</span>
+          <span>Grátis</span>
+        </div>
+        <div class="flex justify-between font-semibold text-[--ml-text] text-lg border-t border-gray-100 pt-3">
+          <span>Total</span>
+          <span id="summary-total"></span>
+        </div>
+        <button id="checkout-btn" class="w-full bg-[--ml-blue] hover:bg-blue-600 text-white font-semibold py-2.5 rounded-md mt-4 transition">
+          Finalizar compra
+        </button>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Modal de confirmação de pedido -->
+  <div id="order-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg p-6 max-w-sm w-full text-center">
+      <div class="w-14 h-14 rounded-full bg-green-100 text-[--ml-green] flex items-center justify-center mx-auto mb-3 text-2xl">✓</div>
+      <h2 class="text-lg font-semibold text-[--ml-text]">Pedido realizado com sucesso!</h2>
+      <p id="order-modal-text" class="text-sm text-[--ml-text-light] mt-2"></p>
+      <a href="/index.html" class="inline-block mt-5 bg-[--ml-blue] hover:bg-blue-600 text-white font-semibold py-2.5 px-6 rounded-md transition">
+        Continuar comprando
+      </a>
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/carrinho.js"></script>
+</body>
+</html>

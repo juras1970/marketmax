@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redefinir senha — MarketMax</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: {
+        'ml-yellow': '#FFE600', 'ml-blue': '#3483FA', 'ml-green': '#00A650', 'ml-red': '#E63535',
+      } } }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <div id="site-header"></div>
+
+  <main class="flex-1 w-full max-w-[420px] mx-auto px-4 py-10">
+    <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
+
+      <!-- Estado: verificando token -->
+      <div id="checking-state" class="text-center py-6">
+        <p class="text-sm text-[--ml-text-light]">Verificando link...</p>
+      </div>
+
+      <!-- Estado: token inválido/expirado ou ausente -->
+      <div id="invalid-state" class="hidden text-center">
+        <h1 class="text-2xl font-semibold text-[--ml-text] mb-1">Link inválido</h1>
+        <p class="text-sm text-[--ml-text-light] mb-6">
+          Este link de redefinição de senha é inválido ou já expirou. Solicite um novo link.
+        </p>
+        <a href="/esqueci-senha.html"
+          class="inline-block w-full bg-[--ml-blue] hover:bg-blue-600 text-white font-semibold py-2.5 rounded-md transition">
+          Solicitar novo link
+        </a>
+      </div>
+
+      <!-- Estado: formulário de nova senha -->
+      <div id="form-state" class="hidden">
+        <h1 class="text-2xl font-semibold text-[--ml-text] text-center mb-1">Redefinir senha</h1>
+        <p class="text-sm text-[--ml-text-light] text-center mb-6">Escolha uma nova senha para sua conta.</p>
+
+        <form id="reset-form" class="space-y-4">
+          <div>
+            <label for="new-password" class="text-xs font-medium text-[--ml-text-light]">Nova senha</label>
+            <input id="new-password" type="password" required minlength="6" autocomplete="new-password"
+              class="w-full mt-1 px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[--ml-blue] focus:border-transparent" />
+          </div>
+          <div>
+            <label for="confirm-password" class="text-xs font-medium text-[--ml-text-light]">Confirmar nova senha</label>
+            <input id="confirm-password" type="password" required minlength="6" autocomplete="new-password"
+              class="w-full mt-1 px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[--ml-blue] focus:border-transparent" />
+          </div>
+
+          <p id="reset-error" class="hidden text-sm text-[--ml-red] bg-red-50 border border-red-100 rounded-md px-3 py-2"></p>
+
+          <button id="reset-submit" type="submit"
+            class="w-full bg-[--ml-blue] hover:bg-blue-600 text-white font-semibold py-2.5 rounded-md transition">
+            Salvar nova senha
+          </button>
+        </form>
+      </div>
+
+      <!-- Estado: sucesso -->
+      <div id="success-state" class="hidden text-center">
+        <h1 class="text-2xl font-semibold text-[--ml-text] mb-1">Senha redefinida!</h1>
+        <p class="text-sm text-[--ml-text-light] mb-6">
+          Sua senha foi alterada com sucesso. Agora você já pode entrar com a nova senha.
+        </p>
+        <a href="/login.html"
+          class="inline-block w-full bg-[--ml-blue] hover:bg-blue-600 text-white font-semibold py-2.5 rounded-md transition">
+          Ir para o login
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/layout.js"></script>
+  <script>
+    const checkingState = document.getElementById('checking-state');
+    const invalidState = document.getElementById('invalid-state');
+    const formState = document.getElementById('form-state');
+    const successState = document.getElementById('success-state');
+
+    function showOnly(el) {
+      [checkingState, invalidState, formState, successState].forEach(e => e.classList.add('hidden'));
+      el.classList.remove('hidden');
+    }
+
+    const token = new URLSearchParams(window.location.search).get('token');
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!token) {
+        showOnly(invalidState);
+        return;
+      }
+
+      try {
+        const result = await api.auth.validateResetToken(token);
+        if (result.valid) {
+          showOnly(formState);
+        } else {
+          showOnly(invalidState);
+        }
+      } catch (err) {
+        showOnly(invalidState);
+      }
+
+      const form = document.getElementById('reset-form');
+      const errorEl = document.getElementById('reset-error');
+      const submitBtn = document.getElementById('reset-submit');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.classList.add('hidden');
+
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        if (newPassword !== confirmPassword) {
+          errorEl.textContent = 'As senhas não coincidem.';
+          errorEl.classList.remove('hidden');
+          return;
+        }
+
+        if (newPassword.length < 6) {
+          errorEl.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+          errorEl.classList.remove('hidden');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Salvando...';
+
+        try {
+          await api.auth.resetPassword(token, newPassword);
+          showOnly(successState);
+        } catch (err) {
+          errorEl.textContent = err.message || 'Não foi possível redefinir a senha. Tente novamente.';
+          errorEl.classList.remove('hidden');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Salvar nova senha';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
